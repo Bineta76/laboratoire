@@ -11,7 +11,7 @@ include 'includes/header.php';
 
 // Configuration de la base de données
 // Paramètres de connexion AlwaysData
-$host = "localost"; 
+$host = "localhost"; 
 $user = "root";
 $password = "";
 $dbname = "labo";

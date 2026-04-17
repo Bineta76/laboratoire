@@ -1,7 +1,7 @@
 <?php
 // ==================== BDD ====================
 // Paramètres de connexion AlwaysData
-$host = "localost"; 
+$host = "localhost"; 
 $user = "root";
 $password = "";
 $dbname = "labo";
@@ -11,7 +11,7 @@ $port = 3306;
 $message = ""; // initialisation du message
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $dbUser, $dbPassword);
+    $pdo = new PDO("mysql:host=localhost;dbname=$dbname;charset=utf8", $user, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (Exception $e) {
     die("Erreur BDD : " . $e->getMessage());

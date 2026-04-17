@@ -18,7 +18,7 @@ try {
 try {
 
 // Paramètres de connexion AlwaysData
-$host = "localost"; 
+$host = "localhost"; 
 $user = "root";
 $password = "";
 $dbname = "labo";
