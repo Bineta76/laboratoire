@@ -90,8 +90,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['utilisateur'] = $user['nom'];
 
                 // 🔥 REDIRECTION VERS DASHBOARD
-                header("Location: dashboard.php");
-                exit;
+               header("Location: quiSommesNous.php");
+exit;
             } else {
                 $message = "Email ou mot de passe incorrect.";
                 $type = "danger";

@@ -1,6 +1,6 @@
 <?php
-//session_start();
 
+session_start();
 
 ?>
 <!DOCTYPE html>
@@ -81,8 +81,6 @@
 
       listeRdv.appendChild(tr);
       form.reset();
-
-
     });
   </script>
 
