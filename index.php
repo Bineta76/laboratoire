@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $hash = password_hash($mdp, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO patient (nom, prenom, email, mot_de_passe) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$nom, $prenom, $email]);
+                $stmt->execute([$nom, $prenom, $email, $hash]);
 
                 $message = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
                 $type = "success";
