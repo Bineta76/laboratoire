@@ -1,7 +1,9 @@
 <?php
 session_start();
-//include 'includes/header.php';
 
+// ======================
+// CONNEXION PDO UNIQUE
+// ======================
 try {
     $pdo = new PDO(
         'mysql:host=localhost;dbname=labo;charset=utf8mb4',
@@ -15,82 +17,58 @@ try {
 } catch (PDOException $e) {
     die("Erreur de connexion : " . htmlspecialchars($e->getMessage()));
 }
-try {
 
-// Paramètres de connexion AlwaysData
-$host = "localhost"; 
-$user = "root";
-$password = "";
-$dbname = "labo";
-$port = 3306;           
-
-try {
-    // Connexion PDO sécurisée
-    $bdd = new PDO(
-        "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
-        $user,
-        $password,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,   // Gestion des erreurs
-            PDO::ATTR_EMULATE_PREPARES => false           // Utilisation des vrais prepared statements
-        ]
-    );
-} catch (PDOException $e) {
-    die("❌ Erreur de connexion : " . $e->getMessage());
-}
-
-    // Test de connexion
-    echo "Connexion réussie !";
-
-}catch (PDOException $e) {
-    die('Erreur de connexion : ' . $e->getMessage());
-}
-
-
-// Gestion des messages flash
+// ======================
+// FLASH MESSAGE
+// ======================
 function flash($message, $type = 'info') {
-    $_SESSION['flash'] = ['message' => $message, 'type' => $type];
+    $_SESSION['flash'] = [
+        'message' => $message,
+        'type' => $type
+    ];
 }
 
-// Suppression d’un compte rendu
+// ======================
+// SUPPRESSION
+// ======================
 if (isset($_GET['supprimer'])) {
     $id = intval($_GET['supprimer']);
+
     $stmt = $pdo->prepare("DELETE FROM bilan WHERE id = ?");
-    if ($stmt->execute([$id])) {
-        flash("✅ Compte rendu supprimé avec succès.", "success");
-    } else {
-        flash("❌ Impossible de supprimer le compte rendu.", "danger");
-    }
+    $stmt->execute([$id]);
+
+    flash("✅ Compte rendu supprimé avec succès", "success");
+
     header("Location: bilan.php");
     exit;
 }
 
-// Ajout d’un compte rendu
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['contenu'])) {
-    $contenu = trim($_POST['contenu']);
-    if ($contenu !== '') {
-        try {
-            $stmt = $pdo->prepare("INSERT INTO bilan (contenu) VALUES (?)");
-            $stmt->execute([$contenu]);
-            flash("✅ Compte rendu ajouté avec succès.", "success");
-            header("Location: bilan.php");
-            exit;
-        } catch (PDOException $e) {
-            flash("❌ Erreur PDO : " . htmlspecialchars($e->getMessage()), "danger");
-        }
+// ======================
+// AJOUT
+// ======================
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $contenu = trim($_POST['contenu'] ?? '');
+
+    if (!empty($contenu)) {
+        $stmt = $pdo->prepare("INSERT INTO bilan (contenu) VALUES (?)");
+        $stmt->execute([$contenu]);
+
+        flash("✅ Compte rendu ajouté avec succès", "success");
+
+        header("Location: bilan.php");
+        exit;
     } else {
-        flash("⚠️ Le contenu est vide.", "warning");
+        flash("⚠️ Le contenu est vide", "warning");
     }
 }
 
-// Récupération des comptes rendus
-try {
-    $stmt = $pdo->query("SELECT id, contenu, date_creation FROM bilan ORDER BY id DESC");
-    $bilanListe = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("❌ Erreur PDO : " . $e->getMessage());
-}
+// ======================
+// RECUPERATION
+// ======================
+$stmt = $pdo->query("SELECT id, contenu, date_creation FROM bilan ORDER BY id DESC");
+$bilanListe = $stmt->fetchAll();
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -98,44 +76,54 @@ try {
     <title>Compte Rendu Médical</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
+
+<!-- NAVBAR -->
+<?php include 'includes/header.php'; ?>
+
 <div class="container mt-5">
+
     <h1 class="mb-4">🩺 Gestion des comptes rendus</h1>
 
-    <!-- Message flash -->
+    <!-- FLASH -->
     <?php if (!empty($_SESSION['flash'])): ?>
-        <div class="alert alert-<?= $_SESSION['flash']['type'] ?>"><?= $_SESSION['flash']['message'] ?></div>
+        <div class="alert alert-<?= $_SESSION['flash']['type'] ?>">
+            <?= $_SESSION['flash']['message'] ?>
+        </div>
         <?php unset($_SESSION['flash']); ?>
     <?php endif; ?>
 
-    <!-- Formulaire d'ajout -->
+    <!-- FORMULAIRE -->
     <div class="card mb-4">
-        <div class="card-header">Ajouter un nouveau compte rendu</div>
+        <div class="card-header">Ajouter un compte rendu</div>
         <div class="card-body">
-            <form method="post" action="">
-                <div class="mb-3">
-                    <textarea name="contenu" class="form-control" rows="4" placeholder="Écris ton compte rendu ici..." required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Ajouter</button>
+            <form method="post">
+                <textarea name="contenu" class="form-control mb-3" rows="4" required></textarea>
+                <button class="btn btn-primary">Ajouter</button>
             </form>
         </div>
     </div>
 
-    <!-- Liste des comptes rendus -->
+    <!-- LISTE -->
     <?php if (!empty($bilanListe)): ?>
         <?php foreach ($bilanListe as $row): ?>
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">📝 Compte rendu #<?= htmlspecialchars($row['id']) ?></h5>
-                    <p class="card-text"><?= nl2br(htmlspecialchars($row['contenu'])) ?></p>
+                    <h5>Compte rendu #<?= htmlspecialchars($row['id']) ?></h5>
+
+                    <p><?= nl2br(htmlspecialchars($row['contenu'])) ?></p>
+
                     <small class="text-muted">
-                        Créé le : <?= date('d/m/Y H:i', strtotime($row['date_creation'])) ?>
+                        <?= htmlspecialchars($row['date_creation']) ?>
                     </small>
+
                     <br><br>
+
                     <a href="?supprimer=<?= urlencode($row['id']) ?>"
                        class="btn btn-danger"
                        onclick="return confirm('Supprimer ce compte rendu ?');">
-                       Supprimer
+                        Supprimer
                     </a>
                 </div>
             </div>
@@ -143,6 +131,10 @@ try {
     <?php else: ?>
         <p class="text-muted">Aucun compte rendu disponible.</p>
     <?php endif; ?>
+
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
