@@ -1,13 +1,13 @@
 <?php
 //session_start();
-include 'includes/header.php';
+//include 'includes/header.php';
 ?>
 
 <div class="container">
         
   <p>
 
-      <center><img src="assets/labo.jpg " width="900px" heignt='500px'></center>
+      <center><img src="assets/labo.jpg" width="900px" heignt='500px'></center>
 
 
     </p>
@@ -90,3 +90,5 @@ include 'includes/header.php';
 
 <?php include 'includes/footer.php';?>
 </div>
+<?php
+echo "PAGE OK";
